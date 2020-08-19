@@ -110,12 +110,17 @@ def get_laser_energies(data_list):
         laser_energy[i] = data_list[i]['Laser Energy'][0] #Pulls the value of laser energy
     return laser_energy
 
-def get_IV(data_list,time,resistance):
+def get_IV(data_list,time,resistance, offset=True):
     t_index = find_nearest(data_list[0]['Time'],time, return_index = True)
     biases = get_biases(data_list)
     I_V = np.zeros(len(data_list))
-    for i in range(len(data_list)):
-        I_V[i]=-data_list[i]['Offset_Applied'][t_index]/resistance
+    
+    if offset:
+        for i in range(len(data_list)):
+            I_V[i]=-data_list[i]['Offset_Applied'][t_index]/resistance
+    else:
+        for i in range(len(data_list)):
+            I_V[i]=-data_list[i]['Voltage'][t_index]/resistance        
     return biases, I_V
 
 def calculate_dNdE(df,resistance, ion_mass=None, distance_to_target=None,
