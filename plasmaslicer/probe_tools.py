@@ -149,6 +149,31 @@ def integrate_charge(data_list,resistance, offset=True):
             integrated_currents[i] = np.trapz(data_list[i]['Voltage']/resistance,data_list[i]['Time'])
     return integrated_currents
 
+def quick_plot(dataframe, offset=False):
+    time = dataframe['Time']*1e6 # multiply by 1e6 to convert to microseconds
+    if offset:
+        voltage = dataframe['Offset_Applied']
+    else:
+        voltage = dataframe['Voltage']
+
+    kinetic_energy = dataframe['Energy']
+    dNdE = dataframe['dN/dE']
+    
+    upper_x_limit = find_nearest(dNdE,1e11, True)
+    print(upper_x_limit)
+
+    fig, ax = plt.subplots(1,2, figsize=(10,5))
+    ax[0].plot(time, voltage,'b')
+    ax[0].set_xlabel('time ($\mu$s)')
+    ax[0].set_ylabel('probe voltage (V)')
+
+    ax[1].semilogy(kinetic_energy, dNdE, 'b')
+    ax[1].set_xlabel('dN/dE (m$^{-2}$ eV${-1}$)')
+    ax[1].set_ylabel('Kinetic Energy (eV)')
+    ax[1].set_xlim(0,kinetic_energy[upper_x_limit])
+    ax[1].set_ylim(bottom=1e11)
+    plt.show()
+
 def calculate_threshold(laser_energy, integrated_current, upper_line_bounds, lower_line_bounds,
                         scale):
     if scale not in ['linear','loglin','loglog']:
